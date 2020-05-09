@@ -1,11 +1,9 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+#---
+#title: "Data607-Final-Project-Shiny App - State of the Union -Sentiment Analysis - Obama vs Trump"
+#author: "Vinayak Kamath"
+#date: "04/05/2020"
+#---
+
 
 # set up -----------------------------------------------------------------------
 # load packages that will be used for the application
