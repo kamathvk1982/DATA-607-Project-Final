@@ -1,8 +1,11 @@
-#---
+
+
 #title: "Data607-Final-Project-Shiny App - State of the Union -Sentiment Analysis - Obama vs Trump"
+
 #author: "Vinayak Kamath"
+
 #date: "04/05/2020"
-#---
+
 
 This is a simple Shiny application created as part of the [_DATA 607, Data Acquisition and Management_] course offered by City University Of New York's (CUNY) Online Masters in Data Science.
 
