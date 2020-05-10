@@ -7,7 +7,7 @@ createHistPlot <- function( presidentInp, yearInp){
     count(word, sentiment, sort = TRUE) %>%
     ungroup()  %>%
     group_by(sentiment) %>%
-    top_n(15) %>%
+    top_n(10) %>%
     ungroup() %>%
     mutate(word = reorder(word, n)) %>%
     ggplot(aes(word, n, fill = sentiment)) +
@@ -19,7 +19,7 @@ createHistPlot <- function( presidentInp, yearInp){
 }
 
 
-# Function for ggplot
+# Function for wordcloud
 createWordCloud <- function( presidentInp, yearInp){
   series.full %>%
     filter(president == presidentInp & year == (if(grepl('All',yearInp))  year else  yearInp)) %>%
