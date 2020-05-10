@@ -31,27 +31,44 @@ createSACHistPlot <- function( wordInp, sentimentInp){
   
   if (wordInp != 'Enter text...' &  !is.null(wordInp) )
   {
-    series.full %>%
+    series.full.n2 %>%
       filter(grepl(tolower(wordInp), tolower(word)) ) %>%
-      ggplot( aes(x = president, y = word, color = president)) +
-      geom_col() # draw a boxplot for each president
+      count(word, president, sort = TRUE) %>%
+      ungroup()  %>%
+      group_by(president) %>%
+      top_n(15) %>%
+      ungroup() %>%
+      mutate(word = reorder(word, n)) %>%
+      ggplot(aes(word, n, fill = word)) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~president, scales = "free_y") +
+      labs(y = "Contribution to word",
+           x = NULL) +
+      coord_flip()
+    
   }
   else
   {
     nrc.sentiments.inp <- nrc.sentiments %>% 
       filter(sentiment == (if(grepl('All',sentimentInp))  sentiment else  tolower(sentimentInp) ))
     
-    series.full %>%
+    series.full %>% 
       inner_join(nrc.sentiments.inp) %>%
-      group_by(president ) %>%
-      summarise(total = count()) %>%
-      ggplot(aes(x = president , y = total, fill = president )) +
-      geom_bar(stat = "identity") +
-      theme_classic() +
-      labs(
-        x = "president",
-        y = "total",
-      )
+      count(president, sentiment, sort = TRUE) %>%
+      ungroup()  %>%
+      group_by(sentiment) %>%
+      top_n(10) %>%
+      ungroup() %>%
+      mutate(president = reorder(president, n)) %>%
+      #mutate(y_cnt = (if (president == 'Donald J. Trump') n/4 else n/8)) %>%
+      ggplot(aes(president, n , fill = president)) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~sentiment, scales = "free_y") +
+      labs(y = "Contribution to sentiment",
+           x = NULL) +
+      coord_flip()
+    
+    
 
   }
 }

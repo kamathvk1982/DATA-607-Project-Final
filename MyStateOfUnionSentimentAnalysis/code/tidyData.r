@@ -55,7 +55,7 @@ for(i in seq_along(years)) {
   clean.n2 <- tibble(year = years[[i]],
                   text = speeches[[i]],
                   speechDate = speechDates[[i]]) %>%
-    unnest_tokens(word, text, token = "ngrams", n = 2) %>%
+    unnest_tokens(word, text, token = "ngrams", n = 3) %>%
     mutate(president = presidents[[i]]) %>%
     select(president, everything())
   
