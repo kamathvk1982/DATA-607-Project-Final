@@ -8,11 +8,11 @@
 # set up -----------------------------------------------------------------------
 # load packages that will be used for the application
 library(shiny)
+library(shinythemes)
+
 library(leaflet)
 library(DT)
 library(markdown)
-library(wordcloud)
-library(shinythemes)
 
 library(dplyr)
 library(tidyr)
@@ -23,12 +23,17 @@ library("syuzhet")
 
 library(XML)
 
+library(reshape2)
+library(wordcloud)
+
+library(quanteda)
 
 
 suppressWarnings(source("./code/speechData.R"))
 suppressWarnings(source("./code/tidyData.R"))
 suppressWarnings(source("./code/analyzeSentiments.R"))
 suppressWarnings(source("./code/createPlot.R"))
+suppressWarnings(source("./code/analyzeMarkets.R"))
 
 # Set up the application ui
 ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
@@ -95,20 +100,24 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                                      )))
                    ),
                    
-                   # Comapring the Presidency
+                   # Comapring the Presidency for Sentiment Analysis
                    tabPanel("Obama vs Trump",
                             fluidRow(column(12,
                                             h1("Sentiment Analysis Comparison"),
                                             p("his story"),
                                             br(),
                                             h4("Instructions"),
-                                            p("Use the radio buttons on the left to chose weekends, weekdays, or a faceted plot of both."))),
+                                            p("Use the options on the left."))),
                             hr(),
                             fluidRow(sidebarPanel(width = 3,
                                                   h4("Select Sentiment"),
                                                   helpText("Chose the option you would like to see the analysis for."),
                                                   selectInput("sentimentInput", "Sentiment",
                                                               sort(unique(InitCap(c(loughran.sentiments$sentiment, 'All')))))
+                                                  , h4("   OR  "),
+                                                  h4("Enter Word"),
+                                                  helpText("Enter word you would like to see the analysis for."),
+                                                  textInput("wordInput", "Word",value = "Enter text...")
                                                   ),
                                      mainPanel(tabsetPanel(
                                          tabPanel("Histogram", plotOutput("histSAC", height = 500)), 
@@ -117,10 +126,33 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                                      )))
                    ),
                    
+                   # Comapring the Presidency for linguistic complexity
+                   tabPanel("Linguistic Complexity Analysis",
+                            fluidRow(column(12,
+                                            h1("Linguistic Complexity Analysis"),
+                                            p("The code below uses the quanteda functions ntoken, nsentence and nsyllable to count the words, sentences, and syllables in each addresss. Then it uses those values to calculate the Flesch-Kincaid reading grade level, a widely used measure of linguistic complexity."),
+                                            br(),
+                                            p("Flesch-Kincaid grade level: These readability tests are used extensively in the field of education. The Flesch-Kincaid Grade Level Formula instead presents a score as a U.S. grade level, making it easier for teachers, parents, librarians, and others to judge the readability level of various books and texts. It can also mean the number of years of education generally required to understand this text, relevant when the formula results in a number greater than 10."),
+                                            br(),
+                                            p("Flesch reading ease: In the Flesch reading-ease test, higher scores indicate material that is easier to read; lower numbers mark passages that are more difficult to read."))),
+                            hr(),
+                            fluidRow(sidebarPanel(width = 3,
+                                                  h4("Select President"),
+                                                  helpText("Chose the option you would like to see the analysis for."),
+                                                  selectInput("presidentInput", "President",c(name.Obama, name.Trump, 'Both'))
+                                                  ),
+                                     mainPanel(tabsetPanel(
+                                         tabPanel("Flesch-Kincaid Grade Level", plotOutput("chartLCAfkg", height = 500))
+                                         , tabPanel("Flesch Reading Ease", plotOutput("chartLCAfre", height = 500)) 
+                                         , id = "conditionedPanelsLCA"
+                                         )))
+                            
+                   ),
+                   
                    # Stock market Analysis
                    tabPanel("Stock Market Analysis",
                             fluidRow(column(12,
-                                            h1("Stock market Analysis"),
+                                            h1("Stock Market Analysis"),
                                             p("his story"),
                                             br(),
                                             h4("Instructions"),
@@ -156,28 +188,37 @@ server <- shinyServer(function(input, output) {
     #  2) Its output type is a plot
     
     output$histObama <- renderPlot({
-        createHistPlot( "Obama" , input$yearObama)
+        createHistPlot( name.Obama , input$yearObama)
     })
     
     output$wordObama <- renderPlot({
-        createWordCloud( "Obama" , input$yearObama)
+        createWordCloud( name.Obama , input$yearObama)
     })
     
     output$histTrump <- renderPlot({
-        createHistPlot( "Trump" , input$yearTrump)
+        createHistPlot( name.Trump , input$yearTrump)
     })
     
     output$wordTrump <- renderPlot({
-        createWordCloud( "Trump" , input$yearTrump)
+        createWordCloud( name.Trump , input$yearTrump)
     })
     
     output$histSAC <- renderPlot({
-        hist(c(1, 2, 3, 4), col = 'darkgray', border = 'white', main=input$Sentiment)
+        createSACHistPlot(input$wordInput, input$sentimentInput)
     })
     
     output$wordSAC <- renderPlot({
-        wordcloud(input$sentimentInput)
+        createSACWordCloud(input$wordInput, input$sentimentInput)
     })
+    
+    output$chartLCAfkg <- renderPlot({
+        createLCAFKGChartPlot(input$presidentInput)
+    })
+    
+    output$chartLCAfre <- renderPlot({
+        createLCACFREChartPlot(input$presidentInput)
+    })
+    
 })
 
 # Create Shiny app ----
