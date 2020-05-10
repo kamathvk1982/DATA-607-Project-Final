@@ -1,7 +1,7 @@
 ## Sentiment Analysis - State of the Union
 ***
 
-![](C:/Users/kamat/OneDrive/Documents/Vinayak/CUNY/Data607/MajorAssignment/ProjectFinal/MyStateOfUnionSentimentAnalysis/www/ObamavsTrump.jpg)
+![](./image/ObamavsTrump.jpg)
 
 
 ### What is this app?
