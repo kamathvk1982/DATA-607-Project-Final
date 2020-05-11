@@ -15,7 +15,7 @@ createSACWordCloud <- function( wordInp, sentimentInp){
   else
   {
     nrc.sentiments.inp <- nrc.sentiments %>% 
-      filter(sentiment == (if(grepl('All',sentimentInp))  sentiment else  tolower(sentimentInp) ))
+      filter(sentiment == (if(grepl(var.All,sentimentInp))  sentiment else  tolower(sentimentInp) ))
     
     series.full %>%
       inner_join(nrc.sentiments.inp) %>%
@@ -50,7 +50,7 @@ createSACHistPlot <- function( wordInp, sentimentInp){
   else
   {
     nrc.sentiments.inp <- nrc.sentiments %>% 
-      filter(sentiment == (if(grepl('All',sentimentInp))  sentiment else  tolower(sentimentInp) ))
+      filter(sentiment == (if(grepl(var.All,sentimentInp))  sentiment else  tolower(sentimentInp) ))
     
     series.full %>% 
       inner_join(nrc.sentiments.inp) %>%

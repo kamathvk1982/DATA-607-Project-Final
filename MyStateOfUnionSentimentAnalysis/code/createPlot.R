@@ -2,7 +2,7 @@
 createHistPlot <- function( presidentInp, yearInp){
   
   series.full %>% 
-    filter(president == presidentInp & year == (if(grepl('All',yearInp))  year else  yearInp) ) %>%
+    filter(president == presidentInp & year == (if(grepl(var.All,yearInp))  year else  yearInp) ) %>%
     inner_join(nrc.sentiments) %>%
     count(word, sentiment, sort = TRUE) %>%
     ungroup()  %>%
@@ -22,7 +22,7 @@ createHistPlot <- function( presidentInp, yearInp){
 # Function for wordcloud
 createWordCloud <- function( presidentInp, yearInp){
   series.full %>%
-    filter(president == presidentInp & year == (if(grepl('All',yearInp))  year else  yearInp)) %>%
+    filter(president == presidentInp & year == (if(grepl(var.All,yearInp))  year else  yearInp)) %>%
     #inner_join(nrc.sentiments) %>%
     count(word) %>%
     with(wordcloud(word, n, max.words = 100 , random.order=FALSE,colors=brewer.pal(8, "Dark2")  ))

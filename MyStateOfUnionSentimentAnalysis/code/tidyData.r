@@ -18,6 +18,11 @@ party_pal <- c("#1482EE","#228B22")
 # default name handling
 name.Trump <- 'Donald J. Trump'
 name.Obama <- 'Barack Obama '
+var.All <- 'All'
+
+name.sp500 <- 'SP 500'
+name.nasdaq <- 'Nasdaq'
+name.dowjones <- 'Dow-Jones'
   
 #Vector of year names:
 years <- c("2009", "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020")
@@ -91,3 +96,26 @@ series.full.n2 <- series.full.n2 %>%
 
 
 gc()
+
+# tidy market data
+# adding column to indicate index or market type
+data.sp500 <- add_column(data.sp500, "indexName" = name.sp500)
+data.nasdaq <- add_column(data.nasdaq, "indexName" = name.nasdaq)
+data.dowjones <- add_column(data.dowjones, "indexName" = name.dowjones)
+
+#maming one combined dataset
+market.data <- rbind(data.dowjones, data.nasdaq, data.sp500)
+
+market.data <- market.data %>%
+  mutate(year = format(date,"%Y"))
+
+#getting speech dates in a new data tibble
+speechDates <- series.full %>%
+  select (year, speechDate, president) %>%
+  mutate(day = as.Date(speechDate,format = "%B %d, %Y")) %>% 
+  distinct(year, speechDate, president, day) %>%
+  arrange(order(year))
+
+
+
+

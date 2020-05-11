@@ -17,6 +17,8 @@ library(markdown)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(readr)
+library(tibble)
 
 library(tidytext)
 library("syuzhet")
@@ -30,6 +32,8 @@ library(quanteda)
 
 
 suppressWarnings(source("./code/speechData.R"))
+suppressWarnings(source("./code/marketData.R"))
+
 suppressWarnings(source("./code/tidyData.R"))
 suppressWarnings(source("./code/analyzeSentiments.R"))
 suppressWarnings(source("./code/createPlot.R"))
@@ -53,7 +57,7 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                                             p("Barack Hussein Obama II (born August 4, 1961) is an American politician and attorney who served as the 44th president of the United States from 2009 to 2017. A member of the Democratic Party, Barack Obama was the first African-American president of the United States. He previously served as a U.S. senator from Illinois from 2005 to 2008 and an Illinois state senator from 1997 to 2004."),
                                             br(),
                                             h4("Instructions"),
-                                            p("Use the radio buttons on the left to chose weekends, weekdays, or a faceted plot of both."))),
+                                            p("Use the radio buttons on the left to chose the Year of Presidency for President Obama."))),
                             hr(),
                             fluidRow(sidebarPanel(width = 3,
                                                   h4("Barack Obama"),
@@ -67,7 +71,7 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                                                                  "2014" = "2014",
                                                                  "2015" = "2015",
                                                                  "2016" = "2016",
-                                                                 "All" ="All"))),
+                                                                 "All" =var.All))),
                                          mainPanel(tabsetPanel(
                                              tabPanel("Histogram", plotOutput("histObama", height = 500)), 
                                              tabPanel("WordCloud", plotOutput("wordObama", height = 500))
@@ -82,7 +86,7 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                                             p("Donald John Trump (born June 14, 1946) is the 45th and current president of the United States. Before entering politics, he was a businessman and television personality. Trump was inaugurated as the 45th president of the United States on January 20, 2017."),
                                             br(),
                                             h4("Instructions"),
-                                            p("Use the radio buttons on the left to chose weekends, weekdays, or a faceted plot of both."))),
+                                            p("Use the radio buttons on the left to chose the Year of Presidency for President Trump"))),
                             hr(),
                             fluidRow(sidebarPanel(width = 3,
                                                   h4("Year of Presidency"),
@@ -92,7 +96,7 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                                                                  "2018" = "2018",
                                                                  "2019" = "2019",
                                                                  "2020" = "2020",
-                                                                 "All" ="All"))),
+                                                                 "All" =var.All))),
                                      mainPanel(tabsetPanel(
                                          tabPanel("Histogram", plotOutput("histTrump", height = 500)), 
                                          tabPanel("WordCloud", plotOutput("wordTrump", height = 500))
@@ -104,16 +108,17 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                    tabPanel("Obama vs Trump",
                             fluidRow(column(12,
                                             h1("Sentiment Analysis Comparison"),
-                                            p("his story"),
+                                            p("Sentiment analysis with NRC Emotion Lexicon. The NRC Sentiment and Emotion Lexicons is a collection of seven lexicons, including the widely used Word-Emotion Association Lexicon. We have used the NRC to track the emotions in the Presidents Speeches."),
+                                            p("You can also try the more in-depth digging with search on actual words in the content of these speeches."),
                                             br(),
                                             h4("Instructions"),
-                                            p("Use the options on the left."))),
+                                            p("Use the options on the left to select an sentiment or enter a word of your choice."))),
                             hr(),
                             fluidRow(sidebarPanel(width = 3,
                                                   h4("Select Sentiment"),
                                                   helpText("Chose the option you would like to see the analysis for."),
                                                   selectInput("sentimentInput", "Sentiment",
-                                                              sort(unique(InitCap(c(loughran.sentiments$sentiment, 'All')))))
+                                                              sort(unique(InitCap(c(nrc.sentiments$sentiment, var.All)))))
                                                   , h4("   OR  "),
                                                   h4("Enter Word"),
                                                   helpText("Enter word you would like to see the analysis for."),
@@ -130,11 +135,13 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                    tabPanel("Linguistic Complexity Analysis",
                             fluidRow(column(12,
                                             h1("Linguistic Complexity Analysis"),
-                                            p("The code below uses the quanteda functions ntoken, nsentence and nsyllable to count the words, sentences, and syllables in each addresss. Then it uses those values to calculate the Flesch-Kincaid reading grade level, a widely used measure of linguistic complexity."),
+                                            p("The code below uses the quanteda functions ntoken, nsentence and nsyllable to count the words, sentences, and syllables in each address. Then it uses those values to calculate the Flesch-Kincaid reading grade level, a widely used measure of linguistic complexity."),
                                             br(),
                                             p("Flesch-Kincaid grade level: These readability tests are used extensively in the field of education. The Flesch-Kincaid Grade Level Formula instead presents a score as a U.S. grade level, making it easier for teachers, parents, librarians, and others to judge the readability level of various books and texts. It can also mean the number of years of education generally required to understand this text, relevant when the formula results in a number greater than 10."),
                                             br(),
-                                            p("Flesch reading ease: In the Flesch reading-ease test, higher scores indicate material that is easier to read; lower numbers mark passages that are more difficult to read."))),
+                                            p("Flesch reading ease: In the Flesch reading-ease test, higher scores indicate material that is easier to read; lower numbers mark passages that are more difficult to read."),
+                                            h4("Instructions"),
+                                            p("Use the radio buttons on the left to chose the President."))),
                             hr(),
                             fluidRow(sidebarPanel(width = 3,
                                                   h4("Select President"),
@@ -153,21 +160,28 @@ ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
                    tabPanel("Stock Market Analysis",
                             fluidRow(column(12,
                                             h1("Stock Market Analysis"),
-                                            p("his story"),
+                                            p("The presidents ability to impact the stock market is indirect and may not be huge. But very often in recent months with president Trump we have seen the market reacting to his tweets and speeches. Here we aim at looking at the Stock market movements on the days leading and post the State of the Union speeches."),
                                             br(),
                                             h4("Instructions"),
-                                            p("Use the radio buttons on the left to chose weekends, weekdays, or a faceted plot of both."))),
+                                            p("Use the radio buttons on the left to chose the President and the market index."))),
                             hr(),
                             fluidRow(sidebarPanel(width = 3,
-                                                  h4("Select Market"),
+                                                  h4("Select President"),
                                                   helpText("Chose the option you would like to see the analysis for."),
-                                                  radioButtons("Index", NULL,
-                                                               c("S&P" = "sp",
-                                                                 "Nasdaq" = "nasdaq",
-                                                                 "Dow Jones" ="dowjones",
-                                                                 "All" = "all"))),
-                                                  mainPanel(plotOutput("histSMA", height = 500)))
-                            
+                                                  selectInput("presidentInput1", "Select President",c(name.Obama, name.Trump)),
+                                                  h4("Select Market Index"),
+                                                  helpText("Chose the option you would like to see the analysis for."),
+                                                  radioButtons("indexInput", NULL,
+                                                               c("S&P 500" = name.sp500,
+                                                                 "Nasdaq" = name.nasdaq,
+                                                                 "Dow Jones" =name.dowjones,
+                                                                 "All" = var.All))),
+                                                  mainPanel(tabsetPanel(
+                                                      tabPanel("Speech Day", plotOutput("chartDay", height = 2500))
+                                                      , tabPanel("Speech Week", plotOutput("chartWeek", height = 2500)) 
+                                                      , tabPanel("Speech Month", plotOutput("chartMonth", height = 2500))
+                                                      , id = "conditionedPanelsLCA"
+                                                  )))
                     ),
                    # introduction sentiment analysis
                    tabPanel("About",
@@ -217,6 +231,19 @@ server <- shinyServer(function(input, output) {
     
     output$chartLCAfre <- renderPlot({
         createLCACFREChartPlot(input$presidentInput)
+    })
+    
+    
+    output$chartDay <- renderPlot({
+        createMarketPLot(input$indexInput, input$presidentInput1, 'Day')
+    })
+    
+    output$chartWeek <- renderPlot({
+        createMarketPLot(input$indexInput, input$presidentInput1, "Week")
+    })
+    
+    output$chartMonth <- renderPlot({
+        createMarketPLot(input$indexInput, input$presidentInput1, "Month")
     })
     
 })
