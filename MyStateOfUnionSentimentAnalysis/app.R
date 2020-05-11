@@ -31,13 +31,13 @@ library(wordcloud)
 library(quanteda)
 
 
-suppressWarnings(source("./code/speechData.R"))
-suppressWarnings(source("./code/marketData.R"))
+suppressWarnings(source("./function/speechData.R"))
+suppressWarnings(source("./function/marketData.R"))
 
-suppressWarnings(source("./code/tidyData.R"))
-suppressWarnings(source("./code/analyzeSentiments.R"))
-suppressWarnings(source("./code/createPlot.R"))
-suppressWarnings(source("./code/analyzeMarkets.R"))
+suppressWarnings(source("./function/tidyData.R"))
+suppressWarnings(source("./function/analyzeSentiments.R"))
+suppressWarnings(source("./function/createPlot.R"))
+suppressWarnings(source("./function/analyzeMarkets.R"))
 
 # Set up the application ui
 ui <- shinyUI(navbarPage("Sentiment Analysis - State of the Union",
